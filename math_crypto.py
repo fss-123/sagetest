@@ -1,12 +1,7 @@
-# crypto_toolkit.py
-# 90天国密算法工程师 - 主工具库（纯Python，任何环境可运行）
-# 设计原则：极简 + 高性能 可无限拓展 注释清晰
 from __future__ import annotations
 from typing import Tuple, List, Optional
 from math import gcd as _gcd
 import random
-from functools import reduce
-import operator
 
 # ==============================
 # Day1：扩展欧几里得 + 模逆
@@ -138,7 +133,6 @@ def miller_rabin(n: int, witnesses: List[int] | int = None) -> bool:
 def primes_below_1000() -> List[int]:
     return [n for n in range(2, 1000) if miller_rabin(n)]
 
-
 # ==============================
 # Day5：有限域 GF(2⁸) 运算（模 0x11B = x⁸ + x⁴ + x³ + x + 1）
 # ==============================
@@ -148,7 +142,6 @@ GF256_IRRED = 0x11B  # AES/SM4 共用的不可约多项式
 def gf256_add(a: int, b: int) -> int:
     """GF(2⁸) 加法 = 按位异或"""
     return a ^ b
-
 
 def gf256_mul(a: int, b: int) -> int:
     """GF(2⁸) 乘法，模 0x11B = x⁸+x⁴+x³+x+1（SM4/AES 标准）"""
@@ -189,7 +182,6 @@ def gf256_mul_verbose(a: int, b: int) -> int:
 # ==============================
 class ECPoint:
     """椭圆曲线上的点（支持无穷远点 O）"""
-
     def __init__(self, x: Optional[int], y: Optional[int], curve) -> None:
         self.curve = curve
         if x is None and y is None:
@@ -244,14 +236,6 @@ class ECPoint:
         if self.is_infinity():
             return "O (无穷远点)"
         return f"({self.x}, {self.y})"
-
-# 自检用 toy 曲线：y² = x³ - 7x + 10 (mod 19)
-
-
-
-
-
-
 # ==============================
 # 自检（直接运行本文件自动验证前两天）
 # ==============================
@@ -274,7 +258,7 @@ if __name__ == "__main__":
 
     # Day4 Miller-Rabin
     assert miller_rabin(13) == True
-    assert miller_rabin(561) == False  # Carmichael 数被秒杀
+    assert miller_rabin(561) == False
     assert miller_rabin(10007) == True
     assert miller_rabin(91) == False
 
@@ -286,36 +270,21 @@ if __name__ == "__main__":
     assert gf256_mul(0x57, 0x83) == 0xC1
     assert gf256_mul(0x57, 0x02) == 0xAE
 
-    assert gf256_mul(0xCA, 0xFE) == 0x4C  # 正确答案是 0x4C
-    assert gf256_mul(0xFF, 0xFF) == 0x13  # 正确答案是 0x13
+    assert gf256_mul(0xCA, 0xFE) == 0x4C
+    assert gf256_mul(0xFF, 0xFF) == 0x13
 
     assert gf256_mul(0x00, 0x13) == 0x00
     assert gf256_mul(0x01, 0x01) == 0x01
     assert gf256_mul(0x02, 0x03) == 0x06
 
-    # Day6 椭圆曲线点加验证（修正后正确答案）
-    # TOY_CURVE = (0, 7, 17)  # y² = x³ + 7 (mod 17)
-    #
-    # P = ECPoint(2, 7, TOY_CURVE)
-    # Q = ECPoint(3, 13, TOY_CURVE)  # ⚠️ 此点不在曲线上，仅作示例
-    # R = P + Q
-    # print(R)  # 输出 (14, 6)
-    # assert R == ECPoint(14, 6, TOY_CURVE)  # ✅ 修改为实际计算结果
-    #
-    # # 倍点验证（同步修正）
-    # assert P + P == ECPoint(12, 16, TOY_CURVE)  # ✅ P+P 的正确结果
     # Day6 椭圆曲线点加验证（使用有效点）
     TOY_CURVE = (0, 7, 17)  # y² = x³ + 7 (mod 17)
-
     # 验证有效的曲线点（手动计算验证过）
     P = ECPoint(2, 7, TOY_CURVE)  # 2³+7=15, 7²=49≡15 ✓
     Q = ECPoint(5, 8, TOY_CURVE)  # 5³+7=132≡13, 8²=64≡13 ✓
-
     R = P + Q
     print(R)  # 输出 (12, 1)
-    assert R == ECPoint(12, 1, TOY_CURVE)  # ✅ 正确断言
-
+    assert R == ECPoint(12, 1, TOY_CURVE)
     # 倍点验证
-    assert P + P == ECPoint(12, 16, TOY_CURVE)  # ✅ P+P 的正确结果
-
+    assert P + P == ECPoint(12, 16, TOY_CURVE)
     print(f"Day1-Day6 全部通过！1000 以内共有 {len(primes)} 个素数")

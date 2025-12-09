@@ -48,7 +48,7 @@ def verify():
     # 1000以内素数个数
     assert len([p for p in range(2, 1000) if is_prime(p)]) == 168
 
-    # --- Day5 GF(2^8) 完美验证 ---
+    # Day5 GF(2^8) 完美验证
     e57 = GF256.fetch_int(0x57)
     e83 = GF256.fetch_int(0x83)
     eCA = GF256.fetch_int(0xCA)
@@ -69,16 +69,13 @@ def verify():
     # 计算过程: FF * FF mod 11B = 13
     assert GF256.fetch_int(0xFF) ** 2 == GF256.fetch_int(0x13), f"实际结果是: {GF256.fetch_int(0xFF) ** 2}"
 
-    # Day6: 使用 Sage 底层算术验证（不触发 bug）
+    # Day6: 使用 Sage 底层算术验证
     print("\n验证椭圆曲线 y² = x³ - 7x + 10 (mod 19)...")
     E = EllipticCurve(GF(19), [-7, 10])
 
-    # 这些操作不触发 bug
     assert E.discriminant() != 0, "曲线奇异"
-    assert E.order() == 24, "曲线阶错误"  # 已知该曲线阶为24
+    assert E.order() == 24, "曲线阶错误"
     print(f"曲线阶 = {E.order()}（正确）")
-    print("✓ Day6 椭圆曲线性质验证通过")
-
     print("SageMath 验证：通过")
 
 
